@@ -114,6 +114,7 @@ data/
 
 # mkdocs documentation
 /site
+/qqcookie.txt
 
 # mypy
 .mypy_cache/

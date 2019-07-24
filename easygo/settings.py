@@ -103,7 +103,7 @@ CONCURRENT_ITEMS = 500
 # Custom Settings for easygo project
 
 #生成cookie使用到的QQ号
-qq_number_sides = [3, 4]
+qq_number_sides = [5, 6]
 #本次爬取使用的cookie行号
 cookie_numbers = [0, 1]
 #所有的QQ号列表
