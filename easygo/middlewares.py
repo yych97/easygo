@@ -22,6 +22,9 @@ from selenium.webdriver.common.proxy import Proxy
 from selenium.webdriver.common.proxy import ProxyType
 from selenium.webdriver import ActionChains
 
+from scrapy.utils.response import response_status_message
+from scrapy.downloadermiddlewares.retry import RetryMiddleware
+
 
 class EasygoSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -244,3 +247,30 @@ class CookieDownloaderMiddleware(object):
                     print(e)
                 except Exception:
                     pass
+
+
+class LocalRetryMiddleware(RetryMiddleware):
+
+    def process_response(self, request, response, spider):
+        if request.meta.get('dont_retry', False):
+            return response
+
+        if response.status in self.retry_http_codes:
+            reason = response_status_message(response.status)
+            return self._retry(request, reason, spider) or response
+
+        # customiz' here
+        resp_dct = json.loads(response.body)
+        if resp_dct.get('code') != 0:
+            if resp_dct.get('code') == -100:
+                banned_cookie = request.cookies
+                spider.cookies.remove(banned_cookie)
+                spider.logger.info("Temporarily BANNED: %s." % banned_cookie)
+                spider.logger.info("%s cookies left." % len(spider.cookies))
+                # mongo_cli.cookies.find_one_and_update({"cookie": banned_cookie},
+                #                                       {"$set": {"FailedDate": str(datetime.date.today())}})
+            # spider.logger.warning("Url %s %s is rescheduled ." % (spider.all_urls[request.url],
+            #                                                       request.url))
+            return self._retry(request, response.body, spider) or response
+
+        return response
