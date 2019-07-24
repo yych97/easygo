@@ -24,15 +24,14 @@ class EasygoSpiderSpider(scrapy.Spider):
     center = []
     qq_number_sides = settings.qq_number_sides
     time_now_str = ''
-    cookies = []
+    my_cookies = object()
 
     def start_requests(self):
         url = 'http://c.easygo.qq.com/api/egc/heatmapdata'
         self.center = self.return_center()
         # 获取cookie
-        cookieO = cookieObject()
-        cookieO.acquire_cookies()
-        self.cookies = cookieO.cookies
+        self.my_cookies = cookieObject()
+        self.my_cookies.acquire_cookies()
         # 获取开始时间
         self.time_now_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
         spyder_list = self.spyder_list_all()

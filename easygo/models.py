@@ -50,6 +50,9 @@ class cookieObject(object):
     cookies = []
     qq_number_sides = settings.qq_number_sides
 
+    def remove_cookie(self, banned_cookie):
+        self.cookies.remove(banned_cookie)
+
     def acquire_cookies(self):
         cookie_filename = settings.cookie_file
         if not os.path.exists(cookie_filename):

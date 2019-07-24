@@ -147,8 +147,8 @@ class ProxyDownloaderMiddleware(object):
 class CookieDownloaderMiddleware(object):
 
     def process_request(self, request, spider):
-        if len(spider.cookies) > 0:
-            cookie = random.choice(spider.cookies)
+        if len(spider.my_cookies.cookies) > 0:
+            cookie = random.choice(spider.my_cookies.cookies)
             request.cookies = cookie
         else:
             print('Cookie已经用完')
@@ -170,7 +170,7 @@ class LocalRetryMiddleware(RetryMiddleware):
         if resp_dct.get('code') != 0:
             if resp_dct.get('code') == -100:
                 banned_cookie = request.cookies
-                spider.cookies.remove(banned_cookie)
+                spider.my_cookies.remove_cookie(banned_cookie)
                 spider.logger.info("Temporarily BANNED: %s." % banned_cookie)
                 spider.logger.info("%s cookies left." % len(spider.cookies))
                 # mongo_cli.cookies.find_one_and_update({"cookie": banned_cookie},
