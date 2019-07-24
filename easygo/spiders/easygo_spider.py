@@ -11,6 +11,7 @@ import datetime
 
 import transCoordinateSystem
 from easygo.items import EasygoItem
+from easygo.models import cookieObject
 
 # #创建一个异常类，用于在cookie失效时抛出异常
 # class CookieException(Exception):
@@ -23,12 +24,16 @@ class EasygoSpiderSpider(scrapy.Spider):
     center = []
     qq_number_sides = settings.qq_number_sides
     time_now_str = ''
-    # cookies = []
+    cookies = []
 
     def start_requests(self):
         url = 'http://c.easygo.qq.com/api/egc/heatmapdata'
         self.center = self.return_center()
-        # self.acquire_cookies()
+        # 获取cookie
+        cookieO = cookieObject()
+        cookieO.acquire_cookies()
+        self.cookies = cookieO.cookies
+        # 获取开始时间
         self.time_now_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
         spyder_list = self.spyder_list_all()
         for item in spyder_list:
@@ -88,22 +93,5 @@ class EasygoSpiderSpider(scrapy.Spider):
         with open (xy_data,'r',encoding='utf-8') as f:
             for item in f.readlines()[1:]:
                 center_list.append(tuple(item.strip().split(",")[-2:]))
-        return center_list
-
-    # def acquire_cookies(self):
-    #     cookie_filename = settings.cookie_file
-    #     if not os.path.exists(cookie_filename):
-    #         with open (cookie_filename,'w',encoding='utf-8') as f:
-    #             for number in self.qq_number_sides:
-    #                 cookie = self.get_cookie(number)
-    #                 f.write(json.dumps(cookie))
-    #                 f.write('\n')
-    #                 self.cookies.append(cookie)
-    #     else:
-    #         cookies_fromfile = []
-    #         with open (cookie_filename,'r',encoding='utf-8') as f:
-    #             cookies_fromfile = f.readlines()
-    #         for cookie_str in cookies_fromfile:
-    #             cookie_str = cookie_str.strip('\n')
-    #             self.cookies.append(json.loads(cookie_str)) 
+        return center_list 
                 
