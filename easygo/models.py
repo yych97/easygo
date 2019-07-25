@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import time
+import yaml
 
 from easygo import settings
 
@@ -48,12 +49,16 @@ class proxyObject(object):
 class cookieObject(object):
     """cookie类：用于模拟登录获取cookie"""
     cookies = []
+    qq_list = []
     qq_number_sides = settings.qq_number_sides
 
     def remove_cookie(self, banned_cookie):
         self.cookies.remove(banned_cookie)
 
     def acquire_cookies(self):
+        qqlist_filename = settings.qq_list
+        with open(qqlist_filename, 'r') as f:
+            self.qq_list = yaml.load(f, Loader=yaml.FullLoader)
         cookie_filename = settings.cookie_file
         if not os.path.exists(cookie_filename):
             with open (cookie_filename,'w',encoding='utf-8') as f:
@@ -86,16 +91,16 @@ class cookieObject(object):
                 while True:
                     try:
                         num = qq_number_side
-                        qq_num = settings.qq_list[num][0]
-                        qq_passwd = settings.qq_list[num][1]
-                        print (qq_num)
+                        qq_num = self.qq_list[num][0]
+                        qq_passwd = self.qq_list[num][1]
+                        print(qq_num)
                         break
                     except IndexError as e:
                         pass
                         # globals()["qq_number_sides"] = 0
                 time.sleep(1)
-                chrome_login.find_element_by_id("u").send_keys(qq_num)
-                chrome_login.find_element_by_id("p").send_keys(qq_passwd)
+                chrome_login.find_element_by_id("u").send_keys(str(qq_num))
+                chrome_login.find_element_by_id("p").send_keys(str(qq_passwd))
                 # chrome_login.maximize_window()
                 chrome_login.find_element_by_id("go").click()
                 time.sleep(3)
