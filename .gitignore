@@ -115,7 +115,7 @@ data/
 # mkdocs documentation
 /site
 /qq_cookie.txt
-/easygo/settings.py
+/qq_list.yaml
 
 # mypy
 .mypy_cache/
