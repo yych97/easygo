@@ -102,12 +102,10 @@ LOG_LEVEL = 'INFO'
 LOG_ENABLED = False
 CONCURRENT_ITEMS = 500
 
-# ******************************************* #
-
-# Custom Settings for easygo project
+# ***** Custom Settings for easygo project ***** #
 
 #生成cookie使用到的QQ号
-qq_number_sides = [8, 9]
+qq_number_sides = [0, 1]
 #所有的QQ号列表
 qq_list = 'qq_list.yaml'
 
