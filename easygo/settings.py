@@ -107,6 +107,8 @@ CONCURRENT_ITEMS = 500
 #生成cookie使用到的QQ号
 qq_number_sides = [0, 1]
 #所有的QQ号列表
+qq_list_all = 'qq_list_all.yaml'
+#临时QQ号列表
 qq_list = 'qq_list.yaml'
 
 xy_name = "sh_noCM.txt"
