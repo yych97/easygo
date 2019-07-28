@@ -22,7 +22,7 @@ class proxyObject(object):
                 webdata = requests.get(settings.proxy_url)
                 if webdata.status_code == 200:
                     print("get new proxy:{}".format(webdata.text.split(",")[0]))
-                    return "http://"+webdata.text.split(",")[0]
+                    return "https://"+webdata.text.split(",")[0]
             except Exception as e:
                 print("get new proxy failed " + str(e.args))
 
@@ -54,6 +54,48 @@ class cookieObject(object):
 
     def remove_cookie(self, banned_cookie):
         self.cookies.remove(banned_cookie)
+
+    def get_track(self, distance):      # distance为传入的总距离
+        distance += 20
+        # 移动轨迹
+        track=[]
+        # 当前位移
+        current=0
+        # 减速阈值
+        mid=distance*3/5
+        # 计算间隔
+        t=0.2
+        # 初速度
+        v=0        
+        while current<distance:
+            if current<mid:
+                # 加速度为2
+                a=2
+            else:
+                # 加速度为-2
+                a=-3
+            v0=v
+            # 当前速度
+            v=v0+a*t
+            # 移动距离
+            move=v0*t+1/2*a*t*t
+            # 当前位移
+            current+=move
+            # 加入轨迹
+            track.append(round(move))
+            back_tracks = [-1, -1, -1, -2, -3, -2, -2, -2, -2, -1, -1, -1]
+        #return track
+        return {'track':track, 'back_tracks':back_tracks}
+    def move_to_gap(self, slider,tracks):     # slider是要移动的滑块,tracks是要传入的移动轨迹
+        ActionChains(chrome_login).click_and_hold(slider).perform()
+        for x in tracks['track']:
+            ActionChains(chrome_login).move_by_offset(xoffset=x,yoffset=0).perform()
+        time.sleep(0.3)
+
+        for back_track in tracks['back_tracks']:
+            ActionChains(chrome_login).move_by_offset(xoffset=back_track, yoffset=0).perform()
+        ActionChains(chrome_login).release().perform()
+        time.sleep(0.3)
 
     def acquire_cookies(self):
         qqlist_filename = settings.qq_list
@@ -101,13 +143,21 @@ class cookieObject(object):
                 time.sleep(1)
                 chrome_login.find_element_by_id("u").send_keys(str(qq_num))
                 chrome_login.find_element_by_id("p").send_keys(str(qq_passwd))
-                # chrome_login.maximize_window()
+                chrome_login.maximize_window()
                 chrome_login.find_element_by_id("go").click()
                 time.sleep(3)
                 
+                # 如有滑块验证拖动滑块
+                while (("安全验证" in chrome_login.page_source) and (chrome_login.current_url=="https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex")):
+                    try:
+                        chrome_login.switch_to_frame('tcaptcha_iframe')
+                        button = chrome_login.find_element_by_xpath("//div[@id='tcaptcha_drag_thumb']")                    
+                        self.move_to_gap(button,self.get_track(196))              
+                    except:
+                        print('failed')
+                time.sleep(3)
+                
                 # 当遇到qq号不能登录时，手动输入其他qq号
-                if ("安全验证" in chrome_login.page_source) and (chrome_login.current_url=="https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex"):
-                    time.sleep(5)
                 if ("你输入的帐号或密码不正确，请重新输入。"or"为了账号安全，请使用一键登录。" in chrome_login.page_source) and (chrome_login.current_url=="https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex"):
                     chrome_login.quit()
                     qq_number_side = int(input('登录错误，请输入其他QQ号再次尝试：'))
