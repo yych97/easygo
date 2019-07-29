@@ -12,6 +12,9 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.proxy import Proxy
 from selenium.webdriver.common.proxy import ProxyType
 from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class proxyObject(object):
     """proxy类：用于获取proxy"""
@@ -22,7 +25,7 @@ class proxyObject(object):
                 webdata = requests.get(settings.proxy_url)
                 if webdata.status_code == 200:
                     print("get new proxy:{}".format(webdata.text.split(",")[0]))
-                    return "https://"+webdata.text.split(",")[0]
+                    return "http://"+webdata.text.split("\n")[0].split(",")[0]
             except Exception as e:
                 print("get new proxy failed " + str(e.args))
 
@@ -86,7 +89,8 @@ class cookieObject(object):
             back_tracks = [-1, -1, -1, -2, -3, -2, -2, -2, -2, -1, -1, -1]
         #return track
         return {'track':track, 'back_tracks':back_tracks}
-    def move_to_gap(self, slider,tracks):     # slider是要移动的滑块,tracks是要传入的移动轨迹
+
+    def move_to_gap(self, chrome_login, slider, tracks):     # slider是要移动的滑块,tracks是要传入的移动轨迹
         ActionChains(chrome_login).click_and_hold(slider).perform()
         for x in tracks['track']:
             ActionChains(chrome_login).move_by_offset(xoffset=x,yoffset=0).perform()
@@ -125,43 +129,54 @@ class cookieObject(object):
                 proxyO = proxyObject()
                 chrome_proxy = proxyO.get_proxy_txt()
                 # self.proxy.append(chrome_proxy)
-                chromeOptions.add_argument('--proxy-server=http://{}'.format(chrome_proxy))
+                # chromeOptions.add_argument("--user-agent=" + givenUAS)
+                chromeOptions.add_argument('--proxy-server={}'.format(chrome_proxy))
                 chromedriver = r'./chromedriver'
-                os.environ["webdriver.chrme.driver"] = chromedriver
-                chrome_login = webdriver.Chrome(chromedriver)
+                # os.environ["webdriver.chrme.driver"] = chromedriver
+                chrome_login = webdriver.Chrome(executable_path=chromedriver, chrome_options=chromeOptions)
                 chrome_login.get("https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex")
-                while True:
-                    try:
-                        num = qq_number_side
-                        qq_num = self.qq_list[num][0]
-                        qq_passwd = self.qq_list[num][1]
-                        print(qq_num)
-                        break
-                    except IndexError as e:
-                        pass
-                        # globals()["qq_number_sides"] = 0
-                time.sleep(1)
-                chrome_login.find_element_by_id("u").send_keys(str(qq_num))
-                chrome_login.find_element_by_id("p").send_keys(str(qq_passwd))
-                chrome_login.maximize_window()
-                chrome_login.find_element_by_id("go").click()
-                time.sleep(3)
+                try:
+                    num = qq_number_side
+                    qq_num = self.qq_list[num][0]
+                    qq_passwd = self.qq_list[num][1]
+                    print(qq_num)
+                except IndexError as e:
+                    pass
+                
+                try:
+                    chrome_login.find_element_by_id("u").send_keys(str(qq_num))
+                    chrome_login.find_element_by_id("p").send_keys(str(qq_passwd))
+                    chrome_login.maximize_window()
+                    chrome_login.find_element_by_id("go").click()
+                except Exception as e:
+                    chrome_login.quit()
+                    continue
                 
                 # 如有滑块验证拖动滑块
-                while (("安全验证" in chrome_login.page_source) and (chrome_login.current_url=="https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex")):
-                    try:
-                        chrome_login.switch_to_frame('tcaptcha_iframe')
-                        button = chrome_login.find_element_by_xpath("//div[@id='tcaptcha_drag_thumb']")                    
-                        self.move_to_gap(button,self.get_track(196))              
-                    except:
-                        print('failed')
-                time.sleep(3)
+                # 10秒内判断元素是否出现
+                # try:
+                #     element = WebDriverWait(chrome_login, 20).until(
+                #         EC.presence_of_element_located((By.ID, "transform_eh"))
+                #     )
+                # except Exception as e:
+                #     driver.quit()
+                #     continue
+                # time.sleep(20)
+                while chrome_login.current_url=="https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex":
+                    time.sleep(3)
+                    if "安全验证" in chrome_login.page_source:
+                        try:
+                            chrome_login.switch_to_frame('tcaptcha_iframe')
+                            button = chrome_login.find_element_by_xpath("//div[@id='tcaptcha_drag_thumb']")                  
+                            self.move_to_gap(chrome_login, button, self.get_track(196))             
+                        except Exception as e:
+                            print('failed', e)
                 
-                # 当遇到qq号不能登录时，手动输入其他qq号
-                if ("你输入的帐号或密码不正确，请重新输入。"or"为了账号安全，请使用一键登录。" in chrome_login.page_source) and (chrome_login.current_url=="https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex"):
-                    chrome_login.quit()
-                    qq_number_side = int(input('登录错误，请输入其他QQ号再次尝试：'))
-                    continue
+                    # 当遇到qq号不能登录时，手动输入其他qq号
+                    if ("你输入的帐号或密码不正确，请重新输入。"or"为了账号安全，请使用一键登录。" in chrome_login.page_source):
+                        chrome_login.quit()
+                        # qq_number_side = int(input('登录错误，请输入其他QQ号再次尝试：'))
+                        break
                 
                 time.sleep(5)                        
                 cookie_items = chrome_login.get_cookies()

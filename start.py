@@ -35,11 +35,11 @@ def job(use_qq):
 # schedule.every().day.at("16:00").do(job, [6, 7])
 # schedule.every().day.at("17:00").do(job, [8, 9])
 
-schedule.every().day.at("13:31").do(job, [0, 1])
+job([3, 4])
 
-while True:
-    schedule.run_pending()
-    time.sleep(30)
+# while True:
+#     schedule.run_pending()
+#     time.sleep(30)
 
 # cmdline.execute('scrapy crawl easygo_spider'.split())
 # cmdline.execute('scrapy crawl httpbin'.split())

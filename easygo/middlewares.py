@@ -168,7 +168,7 @@ class LocalRetryMiddleware(RetryMiddleware):
         # customiz' here
         resp_dct = json.loads(response.body)
         if resp_dct.get('code') != 0:
-            if resp_dct.get('code') == -100:
+            if (resp_dct.get('code') == -100) or (resp_dct.get('code') == -3):
                 banned_cookie = request.cookies
                 spider.my_cookies.remove_cookie(banned_cookie)
                 spider.logger.info("Temporarily BANNED: %s." % banned_cookie)
