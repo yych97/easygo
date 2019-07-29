@@ -126,11 +126,10 @@ class cookieObject(object):
         while True:
             try:
                 chromeOptions = webdriver.ChromeOptions()
-                proxyO = proxyObject()
-                chrome_proxy = proxyO.get_proxy_txt()
-                # self.proxy.append(chrome_proxy)
-                # chromeOptions.add_argument("--user-agent=" + givenUAS)
-                chromeOptions.add_argument('--proxy-server={}'.format(chrome_proxy))
+                if settings.USE_PROXY_LOGIN == True:
+                    proxyO = proxyObject()
+                    chrome_proxy = proxyO.get_proxy_txt()
+                    chromeOptions.add_argument('--proxy-server={}'.format(chrome_proxy))
                 chromedriver = r'./chromedriver'
                 # os.environ["webdriver.chrme.driver"] = chromedriver
                 chrome_login = webdriver.Chrome(executable_path=chromedriver, chrome_options=chromeOptions)
@@ -162,23 +161,23 @@ class cookieObject(object):
                 #     driver.quit()
                 #     continue
                 # time.sleep(20)
-                while chrome_login.current_url=="https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex":
+                while (chrome_login.current_url=="https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex"):
                     time.sleep(3)
-                    if "安全验证" in chrome_login.page_source:
-                        try:
-                            chrome_login.switch_to_frame('tcaptcha_iframe')
-                            button = chrome_login.find_element_by_xpath("//div[@id='tcaptcha_drag_thumb']")                  
-                            self.move_to_gap(chrome_login, button, self.get_track(196))             
-                        except Exception as e:
-                            print('failed', e)
+                    if settings.AUTO_CAPTCHA == True:
+                        if "安全验证" in chrome_login.page_source:
+                            try:
+                                chrome_login.switch_to_frame('tcaptcha_iframe')
+                                button = chrome_login.find_element_by_xpath("//div[@id='tcaptcha_drag_thumb']")                  
+                                self.move_to_gap(chrome_login, button, self.get_track(196))             
+                            except Exception as e:
+                                print('failed', e)
                 
                     # 当遇到qq号不能登录时，手动输入其他qq号
-                    if ("你输入的帐号或密码不正确，请重新输入。"or"为了账号安全，请使用一键登录。" in chrome_login.page_source):
-                        chrome_login.quit()
-                        # qq_number_side = int(input('登录错误，请输入其他QQ号再次尝试：'))
-                        break
-                
-                time.sleep(5)                        
+                    # if ("你输入的帐号或密码不正确，请重新输入。"or"为了账号安全，请使用一键登录。" in chrome_login.page_source) and (chrome_login.current_url=="https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex"):
+                    #     chrome_login.quit()
+                    #     qq_number_side = int(input('登录错误，请输入其他QQ号再次尝试：'))
+                    #     break
+                                        
                 cookie_items = chrome_login.get_cookies()
                 chrome_login.quit()
                 user_cookie = {}

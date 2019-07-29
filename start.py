@@ -35,7 +35,7 @@ def job(use_qq):
 # schedule.every().day.at("16:00").do(job, [6, 7])
 # schedule.every().day.at("17:00").do(job, [8, 9])
 
-job([3, 4])
+job([6, 7])
 
 # while True:
 #     schedule.run_pending()
