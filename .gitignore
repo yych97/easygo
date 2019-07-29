@@ -115,6 +115,7 @@ data/
 # mkdocs documentation
 /site
 /qq_cookie.txt
+/qq_list_all.yaml
 /qq_list.yaml
 
 # mypy
