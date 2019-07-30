@@ -6,6 +6,8 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import time
+import sys
+import pandas
 from easygo import settings
 from scrapy.exporters import CsvItemExporter
 
@@ -13,13 +15,14 @@ class EasygoPipeline(object):
     def __init__(self):
         time_now = time.time()
         time_now_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time_now))
-        file_name = settings.filepath + time_now_str + ".csv"
-        self.fp = open(file_name, 'wb')
+        self.file_name = settings.filepath + time_now_str + ".csv"
+        self.fp = open(self.file_name, 'wb')
         self.exporter = CsvItemExporter(self.fp, encoding='utf-8')
         self.exporter.start_exporting()
 
     def open_spider(self, spider):
-        print('start')
+        # print('start')
+        pass
 
     def process_item(self, item, spider):
         self.exporter.export_item(item)
@@ -27,7 +30,9 @@ class EasygoPipeline(object):
     def close_spider(self, spider):
         self.exporter.finish_exporting()
         self.fp.close()
-        print('finish')
+        if REMOVE_DUPLICATE == True:
+            self.remove_duplicate(self.file_name)
+        # print('finish')
 
     # 自定义函数
     def remove_duplicate(self, filepath):
@@ -51,5 +56,5 @@ class EasygoPipeline(object):
             res_.append(data)
         df = pandas.DataFrame(res_)
 
-        csv_name = filepath.replace(".txt","去重结果.csv")
+        csv_name = filepath.replace(".csv","去重结果.csv")
         df.to_csv(csv_name,index = False)

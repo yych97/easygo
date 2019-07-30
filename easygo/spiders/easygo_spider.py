@@ -13,6 +13,10 @@ import transCoordinateSystem
 from easygo.items import EasygoItem
 from easygo.models import cookieObject
 
+from scrapy.mail import MailSender
+from scrapy.xlib.pydispatch import dispatcher
+from scrapy import signals
+
 # #创建一个异常类，用于在cookie失效时抛出异常
 # class CookieException(Exception):
 #     def __init__(self):
@@ -25,6 +29,19 @@ class EasygoSpiderSpider(scrapy.Spider):
     qq_number_sides = settings.qq_number_sides
     time_now_str = ''
     my_cookies = object()
+
+    def __init__(self):
+        """ 监听信号量 """
+        super(EasygoSpiderSpider, self).__init__()# 当收到spider_closed信号的时候，调用下面的close方法来发送通知邮件
+        dispatcher.connect(self.spider_closed, signals.spider_closed)
+        dispatcher.connect(self.spider_opened, signals.spider_opened)
+        self.mailers = MailSender(
+            smtphost="smtp.126.com",  # 发送邮件的服务器    
+            mailfrom="yych97@126.com",  # 邮件发送者
+            smtpuser="yych97@126.com",  # 用户名
+            smtppass="jkl8905201314",  # 发送邮箱的密码不是你注册时的密码，而是授权码！！！切记！
+            smtpport=25  # 端口号
+        )  #初始化邮件模块
 
     def start_requests(self):
         url = 'http://c.easygo.qq.com/api/egc/heatmapdata'
@@ -92,5 +109,17 @@ class EasygoSpiderSpider(scrapy.Spider):
         with open (xy_data,'r',encoding='utf-8') as f:
             for item in f.readlines()[1:]:
                 center_list.append(tuple(item.strip().split(",")[-2:]))
-        return center_list 
+        return center_list
+
+    def spider_closed(self, spider, reason):
+        # 上方的信号量触发这个方法
+        stats_info = self.crawler.stats._stats  # 爬虫结束时控制台信息
+        body = "爬虫[%s]已经关闭，原因是: %s.\n以下为运行信息：\n %s" % (spider.name, reason, stats_info)
+        subject = "[%s]爬虫关闭提醒" % spider.name
+        self.mailers.send(to=["yych97@126.com"], subject=subject, body=body)
+
+    def spider_opened(self, spider):
+        body = "爬虫[%s]开始运行" % spider.name
+        subject = "[%s]爬虫开启提醒" % spider.name
+        self.mailers.send(to=["yych97@126.com"], subject=subject, body=body)
                 

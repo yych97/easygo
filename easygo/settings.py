@@ -114,13 +114,13 @@ qq_list = 'qq_list.yaml'
 xy_name = "sh_noCM.txt"
 cookie_file = "qq_cookie.txt"
 
+#爬取结束后运行去重程序
+REMOVE_DUPLICATE = False
 #自动拖动滑块（还未完善）
 AUTO_CAPTCHA = False
 #代理池（不稳定）
 USE_PROXY_LOGIN = False
 proxy_url = "http://api.ip.data5u.com/dynamic/get.html?order=3ad7917c16dc90af3b87941f5e9c173b&ttl=1&sep=3"
-# proxy_url = "http://http.tiqu.alicdns.com/getip3?num=1&type=1&pro=&city=0&yys=0&port=1&time=1&ts=0&ys=0&cs=0&lb=4&sb=0&pb=45&mr=1&regions=&gm=4"
-# proxy_url = "http://http.tiqu.alicdns.com/getip3?num=1&type=2&pro=0&city=0&yys=0&port=1&time=1&ts=1&ys=1&cs=1&lb=4&sb=0&pb=45&mr=1&regions=&gm=4"
 # proxy_url = "http://api.ip.data5u.com/dynamic/get.html?order=3ad7917c16dc90af3b87941f5e9c173b&ttl=1&random=true&sep=3"
 
 #下面设置文件存目录，不要设置在系统盘，不然会出现问题
