@@ -13,7 +13,7 @@
 * python3.6.8
 * scrapy1.6.0
 
-### 使用方法
+### 使用方法：
 1. 项目python环境安装，在项目根目录打开cmd输入(建议使用国内的pip镜像进行安装):  
 ```
 pip install -r requirements.txt
