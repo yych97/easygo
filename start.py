@@ -6,6 +6,7 @@ import yaml
 import os
 
 def job(use_qq):
+    """参数为一个list，为本次job生成的临时qq_list.yaml文件使用的qq号"""
     qq_list_all = []
     qqlist_all_filename = settings.qq_list_all
     qqlist_filename = settings.qq_list
@@ -16,9 +17,9 @@ def job(use_qq):
     if os.path.exists(cookie_file):
         os.remove(cookie_file)
     # 生成运行临时文件
-    with open(qqlist_all_filename, 'r') as f:
+    with open(qqlist_all_filename, 'r', encoding='utf-8') as f:
         qq_list_all = yaml.load(f, Loader=yaml.FullLoader)
-    with open(qqlist_filename, 'w') as f:
+    with open(qqlist_filename, 'w', encoding='utf-8') as f:
         qq_list = []
         for num in use_qq:
             qq_list.append(qq_list_all[num])
@@ -35,7 +36,7 @@ def job(use_qq):
 # schedule.every().day.at("16:00").do(job, [6, 7])
 # schedule.every().day.at("17:00").do(job, [8, 9])
 
-job([1, 2])
+job([5, 6])
 
 # while True:
 #     schedule.run_pending()

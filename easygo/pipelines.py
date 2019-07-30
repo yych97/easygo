@@ -30,7 +30,7 @@ class EasygoPipeline(object):
     def close_spider(self, spider):
         self.exporter.finish_exporting()
         self.fp.close()
-        if REMOVE_DUPLICATE == True:
+        if settings.REMOVE_DUPLICATE == True:
             self.remove_duplicate(self.file_name)
         # print('finish')
 

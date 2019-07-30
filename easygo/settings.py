@@ -104,7 +104,7 @@ CONCURRENT_ITEMS = 500
 
 # ***** Custom Settings for easygo project ***** #
 
-#生成cookie使用到的临时yaml中的QQ号
+#生成cookie使用到的临时yaml中的QQ号（可以通过修改此参数控制spider使用的qq号数量）
 qq_number_sides = [0, 1]
 #所有的QQ号列表
 qq_list_all = 'qq_list_all.yaml'
@@ -126,7 +126,6 @@ proxy_url = "http://api.ip.data5u.com/dynamic/get.html?order=3ad7917c16dc90af3b8
 #下面设置文件存目录，不要设置在系统盘，不然会出现问题
 #当前目录用"."表示，如"./example/"
 filepath = r"./data/"
-# filename = "example"
 
 # #四至，城市，中心经纬度
 # lng_min = 121.467061
