@@ -104,7 +104,7 @@ class cookieObject(object):
     def acquire_cookies(self):
         qqlist_filename = settings.qq_list
         with open(qqlist_filename, 'r') as f:
-            self.qq_list = yaml.load(f, Loader=yaml.FullLoader)
+            self.qq_list = yaml.load(f)
         cookie_filename = settings.cookie_file
         if not os.path.exists(cookie_filename):
             with open (cookie_filename,'w',encoding='utf-8') as f:

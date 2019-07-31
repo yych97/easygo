@@ -18,7 +18,7 @@ def job(use_qq):
         os.remove(cookie_file)
     # 生成运行临时文件
     with open(qqlist_all_filename, 'r', encoding='utf-8') as f:
-        qq_list_all = yaml.load(f, Loader=yaml.FullLoader)
+        qq_list_all = yaml.load(f)
     with open(qqlist_filename, 'w', encoding='utf-8') as f:
         qq_list = []
         for num in use_qq:
@@ -36,7 +36,7 @@ def job(use_qq):
 # schedule.every().day.at("16:00").do(job, [6, 7])
 # schedule.every().day.at("17:00").do(job, [8, 9])
 
-job([5, 6])
+job([0, 1])
 
 # while True:
 #     schedule.run_pending()
